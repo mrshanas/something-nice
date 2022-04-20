@@ -3,6 +3,8 @@ import app from "../../../app";
 // const request = require("supertest");
 // const app = require("../app");
 
+jest.setTimeout(300000);
+
 describe("Test product route", () => {
   test("It should respond with status code 201", (done) => {
     request(app)
