@@ -1,6 +1,41 @@
-import Product from "./products.model";
+import { Product, Category } from "./products.model";
+import { Request, Response } from "express";
 
-export const showProducts = async (req: any, res: any) => {
+export const showCategories = async (req: Request, res: Response) => {
+  const categories = await Category.find().catch((err: Error) =>
+    res.json({
+      error: {
+        name: err.name,
+        message: err.message,
+      },
+    })
+  );
+
+  return res.status(200).json({ categories });
+};
+
+export const createCategory = async (req: Request, res: Response) => {
+  interface category {
+    name: string;
+  }
+
+  let category: category = req.body;
+
+  await Category.create(category)
+    .then((response) => (category = response))
+    .catch((err: Error) =>
+      res.json({
+        error: {
+          name: err.name,
+          message: err.message,
+        },
+      })
+    );
+
+  return res.status(201).json({ category });
+};
+
+export const showProducts = async (req: Request, res: Response) => {
   try {
     const products = await Product.find();
     return res.status(200).json(products);
@@ -13,17 +48,26 @@ export const showProducts = async (req: any, res: any) => {
     });
   }
 };
-export const createProduct = async (req: any, res: any) => {
+
+export const createProduct = async (req: Request, res: Response) => {
   interface product {
     name: string;
     photoUrl: string;
     price: Number;
     tags: string[];
+    category: string;
   }
 
   let product: product = req.body;
+
   await Product.create(product)
-    .then((resp) => (product = resp))
+    .then((resp: any) => {
+      Category.findById(product.category).then((category: any) => {
+        category.products.push(resp.category);
+        category.save();
+      });
+      return (product = resp);
+    })
     .catch((err: Error) => {
       console.error(err);
       return res.status(400).json({
@@ -35,4 +79,18 @@ export const createProduct = async (req: any, res: any) => {
     });
 
   return res.status(201).json({ product });
+};
+
+export const showProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    return res.status(200).json({ product });
+  } catch (error: any) {
+    return res.json({
+      Error: {
+        name: error.name,
+        message: error.message,
+      },
+    });
+  }
 };
