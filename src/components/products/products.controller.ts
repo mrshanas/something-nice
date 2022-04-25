@@ -1,6 +1,39 @@
 import { Product, Category } from "./products.model";
 import { Request, Response } from "express";
 
+/**
+ * @swagger
+ * /categories:
+ *  get:
+ *   summary: Get all categories
+ *   description: Returns all categories
+ *   responses:
+ *     200:
+ *       description: A list of categories
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                type: array
+ *                items:
+ *                  type: object
+ *                  properties:
+ *                     _id:
+ *                       type: string
+ *                       description: Mongo db generated id
+ *                       example: 63dbhsbhnsjjdccbjnj
+ *                     name:
+ *                       type: string,
+ *                       description: Name of the category
+ *                       example: Personal Computers
+ *                     products:
+ *                        type: array
+ *                        description: Product array containing product id's
+ *                        example: ['6udcjnjnjsndjcnjcdn','dcjndjncdjcdj']
+ */
+
 export const showCategories = async (req: Request, res: Response) => {
   const categories = await Category.find().catch((err: Error) =>
     res.json({
